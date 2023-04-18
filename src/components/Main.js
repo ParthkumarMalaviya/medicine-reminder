@@ -19,45 +19,16 @@ import ListItemText from '@mui/material/ListItemText';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import VaccinesIcon from '@mui/icons-material/Vaccines';
-import GroupIcon from '@mui/icons-material/Group';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MedicationIcon from '@mui/icons-material/Medication';
-import Medications from './Medications';
-import CareGivers from './CareGivers';
-import Users from './Users';
-import Reminders from './Reminders';
+import Login from './User/Login';
+import Medications from './Medication/Medications';
+import CareGivers from './Caregiver/CareGivers';
+import EditProfile from './User/EditProfile';
+import Reminders from './Reminder/Reminders';
 
 const drawerWidth = 240;
-
-const primaryComponents = [
-    {
-        id: 1,
-        comp: <Medications/>,
-        label: 'Medications',
-        icon: <VaccinesIcon/>,
-        // comp: <Medications/>
-    },
-    {
-        id: 2,
-        comp: <CareGivers/>,
-        label: 'Caregivers',
-        icon: <MedicationIcon/>
-    }
-];
-const secondaryComponents = [
-    {
-        id: 1,
-        comp: <Users/>,
-        label: 'All User',
-        icon: <GroupIcon/>
-    },
-    {
-        id: 2,
-        comp: <Reminders/>,
-        label: 'Reminders',
-        icon: <NotificationsIcon/>
-    }
-];
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
@@ -106,12 +77,51 @@ const AppBar = styled(MuiAppBar, {
 
 export default function MainComponent() {
 
-    const [auth, setAuth] = React.useState(true);
+    const [auth, setAuth] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [selectedComponent, setSelectedComponent] = React.useState(<Medications/>);
+    const [user, setUser] = React.useState({});
+
+    const primaryComponents = [
+        {
+            id: 1,
+            comp: <Medications/>,
+            label: 'Medications',
+            icon: <VaccinesIcon/>,
+            // comp: <Medications/>
+        },
+        {
+            id: 2,
+            comp: <CareGivers/>,
+            label: 'Caregivers',
+            icon: <MedicationIcon/>
+        }
+    ];
+    const secondaryComponents = [
+        {
+            id: 1,
+            comp: <EditProfile/>,
+            label: 'Edit Profile',
+            icon: <AccountCircleIcon/>
+        },
+        {
+            id: 2,
+            comp: <Reminders/>,
+            label: 'Reminders',
+            icon: <NotificationsIcon/>
+        }
+    ];
+
+    React.useEffect(() => {
+        const curUser = localStorage.getItem('user');
+        if (curUser === null) setAuth(false);
+        else { 
+            setUser(JSON.parse(curUser))
+            setAuth(true);
+        }
+    }, []);
 
     const handleListItemClick = (componentName) => {
-        console.log(componentName);
         setSelectedComponent(componentName);
     };
 
@@ -119,8 +129,9 @@ export default function MainComponent() {
         setAuth(event.target.checked);
     };
 
-    const handleMenu = (event) => {
-        setAnchorEl(event.currentTarget);
+    const logout = () => {
+        localStorage.removeItem('user');
+        setAuth(false);
     };
 
     const handleClose = () => {
@@ -139,94 +150,94 @@ export default function MainComponent() {
     };
 
     return (
-        <Box sx={{ display: 'flex' }}>
-        <CssBaseline />
-        <AppBar position="fixed" open={open}>
-            <Toolbar>
-            <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                sx={{ mr: 2, ...(open && { display: 'none' }) }}
-            >
-                <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                Medicine Reminder
-            </Typography>
-            {auth && (
-                <div>
-                <IconButton
-                    size="large"
-                    aria-label="account of current user"
-                    aria-controls="menu-appbar"
-                    aria-haspopup="true"
-                    onClick={handleMenu}
-                    color="inherit"
+        auth ? (
+            <Box sx={{ display: 'flex' }}>
+                <CssBaseline />
+                <AppBar position="fixed" open={open}>
+                    <Toolbar>
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            onClick={handleDrawerOpen}
+                            edge="start"
+                            sx={{ mr: 2, ...(open && { display: 'none' }) }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                            Medicine Reminder
+                        </Typography>
+                        
+                        <div>
+                            <IconButton
+                                size="large"
+                                color="inherit"
+                            >
+                                <AccountCircle />
+                            </IconButton>
+                            {user?.fname} {user?.lname}
+                            
+                            <IconButton onClick={logout} color="inherit" aria-label="upload picture" component="label">
+                                <LogoutIcon />
+                            </IconButton>
+                        </div>
+                    
+                    </Toolbar>
+                </AppBar>
+                <Drawer
+                    sx={{
+                    width: drawerWidth,
+                    flexShrink: 0,
+                    '& .MuiDrawer-paper': {
+                        width: drawerWidth,
+                        boxSizing: 'border-box',
+                    },
+                    }}
+                    variant="persistent"
+                    anchor="left"
+                    open={open}
                 >
-                    <AccountCircle />
-                </IconButton>
-                Username
-                
-                <IconButton color="inherit" aria-label="upload picture" component="label">
-                    <LogoutIcon />
-                </IconButton>
-                </div>
-            )}
-            </Toolbar>
-        </AppBar>
-        <Drawer
-            sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-                width: drawerWidth,
-                boxSizing: 'border-box',
-            },
-            }}
-            variant="persistent"
-            anchor="left"
-            open={open}
-        >
-            <DrawerHeader>
-            <IconButton onClick={handleDrawerClose}>
-                {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-            </IconButton>
-            </DrawerHeader>
-            <Divider />
-            <List>
-            {primaryComponents.map((comp, index) => (
-                <ListItem key={comp.id} disablePadding onClick={()=> {handleListItemClick(comp.comp)}}>
-                <ListItemButton>
-                    <ListItemIcon>
-                    {comp.icon}
-                    </ListItemIcon>
-                    <ListItemText primary={comp.label} />
-                </ListItemButton>
-                </ListItem>
-            ))}
-            </List>
-            <Divider />
-            <List>
-            {secondaryComponents.map((comp, index) => (
-                <ListItem key={comp.id} disablePadding onClick={()=> {handleListItemClick(comp.comp)}}>
-                <ListItemButton>
-                    <ListItemIcon>
-                    {comp.icon}
-                    </ListItemIcon>
-                    <ListItemText primary={comp.label} />
-                </ListItemButton>
-                </ListItem>
-            ))}
-            </List>
-        </Drawer>
-        <Main open={open}>
-            {/* <DrawerHeader /> */}
-            <Box sx={{ mt: 5 }}>
-                {selectedComponent}
+                    <DrawerHeader>
+                    <IconButton onClick={handleDrawerClose}>
+                        {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                    </IconButton>
+                    </DrawerHeader>
+                    <Divider />
+                    <List>
+                    {primaryComponents.map((comp, index) => (
+                        <ListItem key={comp.id} disablePadding onClick={()=> {handleListItemClick(comp.comp)}}>
+                        <ListItemButton>
+                            <ListItemIcon>
+                            {comp.icon}
+                            </ListItemIcon>
+                            <ListItemText primary={comp.label} />
+                        </ListItemButton>
+                        </ListItem>
+                    ))}
+                    </List>
+                    <Divider />
+                    <List>
+                    {secondaryComponents.map((comp, index) => (
+                        <ListItem key={comp.id} disablePadding onClick={()=> {handleListItemClick(comp.comp)}}>
+                        <ListItemButton>
+                            <ListItemIcon>
+                            {comp.icon}
+                            </ListItemIcon>
+                            <ListItemText primary={comp.label} />
+                        </ListItemButton>
+                        </ListItem>
+                    ))}
+                    </List>
+                </Drawer>
+                <Main open={open}>
+                    {/* <DrawerHeader /> */}
+                    <Box sx={{ mt: 5 }}>
+                        {selectedComponent}
+                    </Box>
+                </Main>
             </Box>
-        </Main>
-    </Box>
+        ) : (
+            <Login setAuth={(obj) => { setAuth(true); setUser(obj)}}/>
+        )
     );
 }

@@ -17,65 +17,78 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import dayjs from 'dayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { IconButton } from '@mui/material';
 
-export default function Users() {
+export default function CareGivers() {
+
     const [fname, setFirstName] = React.useState('');
     const [lname, setLastName] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [phone, setPhone] = React.useState('');
-    const [bdate, setBirthDate] = React.useState();
-    const [password, setPassword] = React.useState('');
-    const [cpassword, setConfirmPassword] = React.useState('');
-    const [userData, setUserData] = React.useState([]);
-    const [id, setId] = React.useState('');
-    const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState('1');
+    const [data, setData] = React.useState([]);
+    const [open, setOpen] = React.useState(false);
+    const [id, setId] = React.useState('');
 
-    React.useEffect(() => {
-        getUserData();
-    }, [])
-
-    const handleClickOpen = () => {
-        // getUserById();
+    const handleClickOpen = (id) => {
+        getCaregiverById(id);
         setOpen(true);
     };
 
-    const getUserById = () => {
-        axios.get(process.env.REACT_APP_API_BASE_URL+'get-user/'+id).then((response) => {
-            setFirstName(response.data.fname);
-            setLastName(response.data.lname);
-            setEmail(response.data.email);
-            setPhone(response.data.phone);
-            setBirthDate(response.data.dob);
-        })
+    const getCaregiverById = (id) => {
+        const editableObj = data.filter(obj => obj.caregiverId === id)[0]
+        // axios.get(process.env.REACT_APP_API_BASE_URL+'get-caregiver/'+id).then((response) => {
+            setFirstName(editableObj.fname);
+            setLastName(editableObj.lname);
+            setEmail(editableObj.email);
+            setPhone(editableObj.phone);
+        // })
     }
 
     const handleClose = () => {
         setOpen(false);
     };
 
-    const getUserData = () => {
-        // axios.get(process.env.REACT_APP_API_BASE_URL+'get-users').then((response) => {
-        //     setUserData(response.data);
-        // }).catch((error) => {
-        //     alert('An error occured!');
-        //     console.log(error);
-        // })
-    }
-
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+
+    React.useEffect(() => {
+        setId(JSON.parse(localStorage.getItem('user')).userId);
+        getData();
+    }, [])
+
+    const getData = () => {
+        axios.get(process.env.REACT_APP_API_BASE_URL+'medicinereminder/careTaker/getCareTakerData').then((response) => {
+            setData(response.data.caretakerData);
+        }).catch((error) => {
+            alert('An error occured!');
+            console.log(error);
+        })
+    }
+
+    const handleUpdate = () => {
+        let obj = {
+            userId: id,
+            fname: fname,
+            lname: lname,
+            email: email,
+            phone: phone,
+        }
+
+        axios.put(process.env.REACT_APP_API_BASE_URL+'update-caregiver/'+id, obj).then((response) => {
+            handleClose();
+            alert('Updated successfully!');
+        }).catch((error) => {
+            alert('An error occured!')
+        })
+    }
 
     const submitForm = () => {
 
@@ -84,19 +97,10 @@ export default function Users() {
             lname: lname,
             email: email,
             phone: phone,
-            password : password,
-            dob:  bdate.format()
         }
-        // const formData = new FormData()
-        // formData.append('fname', fname)
-        // formData.append('lname', lname)
-        // formData.append('email', email)
-        // formData.append('phone', phone)
-        // formData.append('password', password)
-        // formData.append('dob', bdate.format())
 
-        axios.post(process.env.REACT_APP_API_BASE_URL+'medicinereminder/userdetails/registerUser', obj).then((response) => {
-            setFirstName(''); setLastName(''); setEmail(''); setPassword(''); setConfirmPassword(''); setPhone(''); setBirthDate(dayjs());
+        axios.post(process.env.REACT_APP_API_BASE_URL+'save-caregiver-info', obj).then((response) => {
+            setFirstName(''); setLastName(''); setEmail(''); setPhone('');
             setValue(1);
         }).catch((error) => {
             alert('An error occured!');
@@ -104,7 +108,17 @@ export default function Users() {
         })
     };
 
-    const userForm = (
+    const handleDelete = (id) => {
+        if (window.confirm("Are you sure you want to delete?") == true) {
+            axios.delete(process.env.REACT_APP_API_BASE_URL+'delete-caregiver', id).then((response) => {
+                alert('Deleted successfully!');
+            }).catch((error) => {
+                alert('An error occured while deleting!');
+            })
+        }
+    }
+
+    const caregiverForm = (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <React.Fragment>
                 <Grid container spacing={3}>
@@ -134,7 +148,7 @@ export default function Users() {
                         variant="standard"
                     />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sm={6}>
                     <TextField
                         required
                         id="email"
@@ -160,47 +174,19 @@ export default function Users() {
                         variant="standard"
                     />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DemoContainer components={['DatePicker', 'DatePicker']}>
-                                <DatePicker
-                                label="Date of Birth"
-                                value={bdate}
-                                onChange={(newValue) => setBirthDate(newValue)}
-                                />
-                            </DemoContainer>
-                        </LocalizationProvider>
-                    </Grid>
                     
                 </Grid>
-                
                 </React.Fragment>
             </Box>
     )
-
-    const handleUpdate = () => {
-        const formData = new FormData()
-        formData.append('fname', fname)
-        formData.append('lname', lname)
-        formData.append('email', email)
-        formData.append('phone', phone)
-        formData.append('dob', bdate.format())
-
-        axios.put(process.env.REACT_APP_API_BASE_URL+'update-user/'+id, formData).then((response) => {
-            handleClose();
-            alert('Updated successfully!');
-        }).catch((error) => {
-            alert('An error occured!')
-        })
-    } 
 
     return (
         <Box sx={{ width: '100%', typography: 'body1' }}>
             <TabContext value={value}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <TabList onChange={handleChange}>
-                    <Tab label="User List" value="1" />
-                    <Tab label="Registration" value="2" />
+                    <Tab label="Caregiver List" value="1" />
+                    <Tab label="Add Caregiver" value="2" />
                 </TabList>
                 </Box>
                 <TabPanel value="1">
@@ -211,10 +197,10 @@ export default function Users() {
                     aria-describedby="alert-dialog-description"
                 >
                     <DialogTitle id="alert-dialog-title">
-                    {"Edit Profile"}
+                    {"Edit Medication Details"}
                     </DialogTitle>
                     <DialogContent>
-                    {userForm}
+                    {caregiverForm}
                     </DialogContent>
                     <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
@@ -223,29 +209,35 @@ export default function Users() {
                     </Button>
                     </DialogActions>
                 </Dialog>
-                <Button onClick={() => {setId(id); handleClickOpen()}}>Edit Profile</Button>
                 <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>Username</TableCell>
+                            <TableCell>Name</TableCell>
                             <TableCell>Email</TableCell>
                             <TableCell>Phone</TableCell>
-                            <TableCell>Date of Birth</TableCell>
+                            <TableCell></TableCell>
                         </TableRow>
                         </TableHead>
                             <TableBody>
-                            {userData.map((row) => (
+                            {data.map((row) => (
                                 <TableRow
-                                key={row.username}
+                                key={row.caretakerId}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
                                 <TableCell component="th" scope="row">
-                                    {row.username}
+                                    {row.fname} {row.lname}
                                 </TableCell>
                                 <TableCell>{row.email}</TableCell>
                                 <TableCell>{row.phone}</TableCell>
-                                <TableCell>{row.dob}</TableCell>
+                                <TableCell>
+                                <IconButton onClick={() => {handleClickOpen(row.caretakerId);}} color="primary" aria-label="upload picture" component="label">
+                                    <EditIcon />
+                                </IconButton>
+                                <IconButton onClick={() => {handleDelete(row.caretakerId)}} color="primary" aria-label="" component="label">
+                                    <DeleteIcon />
+                                </IconButton>
+                                </TableCell>
                                 </TableRow>
                             ))}
                             </TableBody>
@@ -258,39 +250,11 @@ export default function Users() {
                 <TabPanel value="2">
                     <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>
                         <Paper variant="outlined" sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
-                        <Typography component="h5" variant="h5" align="center">
-                            Registration
+                        <Typography component="h6" variant="h4" align="center">
+                            Add Caregiver
                         </Typography>
                         
-                        {userForm}
-                        <Grid container spacing={3}>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    required
-                                    id="password"
-                                    name="password"
-                                    label="Password"
-                                    value={password}
-                                    onChange={(event) => {setPassword(event.target.value)}}
-                                    fullWidth
-                                    autoComplete="shipping address-level2"
-                                    variant="standard"
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    required
-                                    id="cpassword"
-                                    name="cpassword"
-                                    label="Confirm Password"
-                                    value={cpassword}
-                                    onChange={(event) => {setConfirmPassword(event.target.value)}}
-                                    fullWidth
-                                    variant="standard"
-                                />
-                            </Grid>
-                        </Grid>
-                        
+                        {caregiverForm}
                         <Grid xs={12} sm={12} item alignItems="center" justifyContent="center">
                             <Button
                             variant="contained"
