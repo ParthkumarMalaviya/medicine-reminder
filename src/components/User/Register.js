@@ -29,8 +29,13 @@ const theme = createTheme();
 export default function SignUp(props) {
   const handleSubmit = (obj) => {
     axios.post(process.env.REACT_APP_API_BASE_URL+'medicinereminder/userdetails/registerUser', obj).then((response) => {
-        alert('Registration successful!');
-        props.setLogin()
+        if(response.data.userRegister) {
+          alert('Registration successful!');
+         props.setLogin()
+        }else{
+          alert(response.data.message);
+        }
+        
     }).catch((error) => {
         alert('An error occured!');
         console.log(error);

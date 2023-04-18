@@ -40,11 +40,12 @@ export default function SignIn(props) {
             password: password
         }
         axios.post(process.env.REACT_APP_API_BASE_URL+'medicinereminder/userdetails/signin', obj).then((response) => {
-            if(response.data.userLogin === true) {
-                localStorage.setItem('user', JSON.stringify(response.data.userData))
-                props.setAuth(response.data.userData);
-            } else {
+            console.log(response);
+            if(response.data.userLogin === false) {
                 alert(response.data.message)
+            } else {
+                localStorage.setItem('user', JSON.stringify(response.data.userData))
+                props.setAuth(response.data.userData); 
             }
         }).catch((error) => {
             alert('An error occured!');

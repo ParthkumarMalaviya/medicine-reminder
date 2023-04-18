@@ -35,14 +35,17 @@ export default function CareGivers() {
     const [data, setData] = React.useState([]);
     const [open, setOpen] = React.useState(false);
     const [id, setId] = React.useState('');
+    const [caretakerId, setCaretakerId] = React.useState('');
 
     const handleClickOpen = (id) => {
+        setCaretakerId(id);
         getCaregiverById(id);
         setOpen(true);
     };
 
     const getCaregiverById = (id) => {
-        const editableObj = data.filter(obj => obj.caregiverId === id)[0]
+        console.log(data);
+        const editableObj = data.filter(obj => obj.caretakerId === id)[0]
         // axios.get(process.env.REACT_APP_API_BASE_URL+'get-caregiver/'+id).then((response) => {
             setFirstName(editableObj.fname);
             setLastName(editableObj.lname);
@@ -65,7 +68,7 @@ export default function CareGivers() {
     }, [])
 
     const getData = () => {
-        axios.get(process.env.REACT_APP_API_BASE_URL+'medicinereminder/careTaker/getCareTakerData').then((response) => {
+        axios.get(process.env.REACT_APP_API_BASE_URL+'medicinereminder/careTaker/getCareTakerData', {params: {userId: JSON.parse(localStorage.getItem("user")).userId}}).then((response) => {
             setData(response.data.caretakerData);
         }).catch((error) => {
             alert('An error occured!');
@@ -80,9 +83,13 @@ export default function CareGivers() {
             lname: lname,
             email: email,
             phone: phone,
+            caretakerId: caretakerId
         }
 
-        axios.put(process.env.REACT_APP_API_BASE_URL+'update-caregiver/'+id, obj).then((response) => {
+        axios.put(process.env.REACT_APP_API_BASE_URL+'medicinereminder/caretaker/updateCareTakerDetails', obj).then((response) => {
+            let temp = data.filter(obj => obj.caretakerId != response.data.updatedCareTakerDetails.caretakerId);
+            temp.push(response.data.updatedCareTakerDetails);
+            setData(temp);
             handleClose();
             alert('Updated successfully!');
         }).catch((error) => {
@@ -97,11 +104,19 @@ export default function CareGivers() {
             lname: lname,
             email: email,
             phone: phone,
+            userId: id,
+            caretakerId: caretakerId
         }
-
-        axios.post(process.env.REACT_APP_API_BASE_URL+'save-caregiver-info', obj).then((response) => {
-            setFirstName(''); setLastName(''); setEmail(''); setPhone('');
-            setValue(1);
+        console.log(id);
+        axios.post(process.env.REACT_APP_API_BASE_URL+'medicinereminder/careTaker/registerCareTaker', obj).then((response) => {
+            if(response.data.careTakerRegister == false){
+                alert(response.data.message); 
+            }else{
+                data.push(obj);
+                setFirstName(''); setLastName(''); setEmail(''); setPhone('');
+                setValue("1");
+            }
+            
         }).catch((error) => {
             alert('An error occured!');
             console.log(error);
@@ -110,7 +125,8 @@ export default function CareGivers() {
 
     const handleDelete = (id) => {
         if (window.confirm("Are you sure you want to delete?") == true) {
-            axios.delete(process.env.REACT_APP_API_BASE_URL+'delete-caregiver', id).then((response) => {
+            axios.delete(process.env.REACT_APP_API_BASE_URL+'medicinereminder/careTaker/deleteCaretaker', {params: {caretakerId: id}}).then((response) => {
+                setData(data.filter(obj => obj.caretakerId != id));
                 alert('Deleted successfully!');
             }).catch((error) => {
                 alert('An error occured while deleting!');

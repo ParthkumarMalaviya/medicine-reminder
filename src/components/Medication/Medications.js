@@ -48,8 +48,10 @@ export default function Medications() {
     const [medicationData, setMedicationData] = React.useState([]);
     const [open, setOpen] = React.useState(false);
     const [id, setId] = React.useState('');
+    const [medicineId, setMedicineId] = React.useState('');
 
     const handleClickOpen = (id) => {
+        setMedicineId(id);
         getMedicationById(id);
         setOpen(true);
     };
@@ -74,7 +76,8 @@ export default function Medications() {
     }, [])
 
     const getMedicationData = () => {
-        axios.get(process.env.REACT_APP_API_BASE_URL+'medicinereminder/medicines/getMedicinesByUserId').then((response) => {
+        console.log(localStorage.getItem("user"));
+        axios.get(process.env.REACT_APP_API_BASE_URL+'medicinereminder/medicines/getMedicinesByUserId', {params: {userId: JSON.parse(localStorage.getItem("user")).userId}}).then((response) => {
             setMedicationData(response.data.medicinesData);
         }).catch((error) => {
             alert('An error occured!');
@@ -94,11 +97,14 @@ export default function Medications() {
             frequency: frequency,
             start_date: sdate.format(),
             end_date : edate.format(),
-            time_to_take: time.format()
+            time_to_take: time.format(),
+            medicineId: medicineId
         }
 
-        axios.put(process.env.REACT_APP_API_BASE_URL+'update-medication/', obj).then((response) => {
-            // setMedicationData(medicationData.filter(obj => obj.medicineId != response.data.id))
+        axios.put(process.env.REACT_APP_API_BASE_URL+'medicinereminder/medicines/updateMedicine', obj).then((response) => {
+            let temp = medicationData.filter(obj => obj.medicineId != response.data.updatedMedicineData.medicineId);
+            temp.push(response.data.updatedMedicineData);
+            setMedicationData(temp);
             handleClose();
             alert('Updated successfully!');
         }).catch((error) => {
@@ -138,14 +144,16 @@ export default function Medications() {
             name: name,
             dosage: dosage,
             frequency: frequency,
-            start_date: sdate.format(),
-            end_date : edate.format(),
-            time_to_take: time.format()
+            start_date: sdate.format("YYYY-MM-DD"),
+            end_date : edate.format("YYYY-MM-DD"),
+            time_to_take: time.format("hh:mm"),
+            userId: id
         }
 
         axios.post(process.env.REACT_APP_API_BASE_URL+'medicinereminder/medicines/addMedicine', obj).then((response) => {
+            medicationData.push(obj);
             setName(''); setDosage(''); setFrequency(1); setStartDate(dayjs()); setEndDate(dayjs());
-            setValue(1);
+            setValue("1");
         }).catch((error) => {
             alert('An error occured!');
             console.log(error);
@@ -154,7 +162,7 @@ export default function Medications() {
 
     const handleDelete = (id) => {
         if (window.confirm("Are you sure you want to delete?") == true) {
-            axios.delete(process.env.REACT_APP_API_BASE_URL+'delete-medication', id).then((response) => {
+            axios.delete(process.env.REACT_APP_API_BASE_URL+'medicinereminder/medicines/deleteMedicine', {params: {medicineId: id}}).then((response) => {
                 setMedicationData(medicationData.filter(obj => obj.medicineId != id))
                 alert('Deleted successfully!');
             }).catch((error) => {
@@ -307,7 +315,7 @@ export default function Medications() {
                                     <TableCell>{row.frequency == 1 ? 'Once a day' : (row.frequency == 2 ? 'Twice a day' : 'As needed') }</TableCell>
                                     <TableCell>{dayjs(row.start_date).format('DD/MM/YYYY')}</TableCell>
                                     <TableCell>{dayjs(row.end_date).format('DD/MM/YYYY')}</TableCell>
-                                    <TableCell>{dayjs(row.time_to_take).format('hh:mm')}</TableCell>
+                                    <TableCell>{row.time_to_take}</TableCell>
                                     <TableCell>
                                     <IconButton onClick={() => {handleClickOpen(row.medicineId);}} color="primary" aria-label="upload picture" component="label">
                                         <EditIcon />

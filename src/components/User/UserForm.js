@@ -19,11 +19,13 @@ export default function UserForm (props) {
 
     React.useEffect(() => {
         const curUser = localStorage.getItem('user');
-        setFirstName(curUser.fname);
-        setLastName(curUser.lname);
-        setEmail(curUser.email);
-        setPhone(curUser.phone);
-        setBirthDate(curUser.dob);
+        if(curUser != null){
+            setFirstName(curUser.fname);
+            setLastName(curUser.lname);
+            setEmail(curUser.email);
+            setPhone(curUser.phone);
+            setBirthDate(curUser.dob);
+        }
     }, [])
 
     const submitForm = () => {

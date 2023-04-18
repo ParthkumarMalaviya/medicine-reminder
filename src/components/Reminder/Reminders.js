@@ -17,12 +17,12 @@ export default function Reminders () {
     }, [])
 
     const getReminderData = () => {
-        // axios.get(process.env.REACT_APP_API_BASE_URL+'get-reminders').then((response) => {
-        //     setReminders(response.data);
-        // }).catch((error) => {
-        //     alert('An error occured!');
-        //     console.log(error);
-        // })
+        axios.get(process.env.REACT_APP_API_BASE_URL+'get-reminders').then((response) => {
+            setReminders(response.data);
+        }).catch((error) => {
+            alert('An error occured!');
+            console.log(error);
+        })
     }
 
     return (
