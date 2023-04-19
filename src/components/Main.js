@@ -26,6 +26,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MedicationIcon from '@mui/icons-material/Medication';
 import Login from './User/Login';
+import Footer from './Footer';
 import Medications from './Medication/Medications';
 import CareGivers from './Caregiver/CareGivers';
 import EditProfile from './User/EditProfile';
@@ -238,6 +239,7 @@ export default function MainComponent() {
                         {selectedComponent}
                     </Box>
                 </Main>
+                <Footer/>
             </Box>
         ) : (
             <Login setAuth={(obj) => { setAuth(true); setUser(obj)}}/>
