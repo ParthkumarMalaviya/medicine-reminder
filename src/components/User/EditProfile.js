@@ -1,3 +1,6 @@
+// Group Details
+// Name: Niyati Gaikwad StudentID: 8849554
+// Name: Parthkumar Malaviya StudentID: 8869965
 import * as React from 'react';
 import axios from 'axios';
 import { Box } from '@mui/material';
@@ -7,10 +10,10 @@ import UserForm from './UserForm';
 export default function EditProfile () {
 
     const handleUpdate = (obj) => {
-        axios.patch(process.env.REACT_APP_API_BASE_URL+'medicinereminder/userdetails/updateUser', obj).then((response) => {
+        axios.put(process.env.REACT_APP_API_BASE_URL+'medicinereminder/userdetails/updateUser', obj).then((response) => {
             alert('Updated Successfully!');
             localStorage.removeItem('user');
-            localStorage.setItem('user', response.data.updatedUserData)
+            localStorage.setItem('user', JSON.stringify(response.data.updatedUserData))
         }).catch((error) => {
             alert('An error occured!');
             console.log(error);

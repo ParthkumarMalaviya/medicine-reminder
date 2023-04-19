@@ -1,3 +1,6 @@
+// Group Details
+// Name: Niyati Gaikwad StudentID: 8849554
+// Name: Parthkumar Malaviya StudentID: 8869965
 import * as React from 'react';
 import axios from 'axios';
 import Paper from '@mui/material/Paper';
@@ -17,8 +20,8 @@ export default function Reminders () {
     }, [])
 
     const getReminderData = () => {
-        axios.get(process.env.REACT_APP_API_BASE_URL+'get-reminders').then((response) => {
-            setReminders(response.data);
+        axios.get(process.env.REACT_APP_API_BASE_URL+'medicinereminder/reminders/getRemindersByUserId', {params: {userId: JSON.parse(localStorage.getItem("user")).userId}}).then((response) => {
+            setReminders(response.data.reminderData);
         }).catch((error) => {
             alert('An error occured!');
             console.log(error);
@@ -30,26 +33,22 @@ export default function Reminders () {
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Dosage</TableCell>
-                            <TableCell>Frequency</TableCell>
-                            <TableCell>Start Date</TableCell>
-                            <TableCell>End Date</TableCell>
+                            <TableCell>Time</TableCell>
+                            <TableCell>Caretaker Contact</TableCell>
+                            <TableCell>Message</TableCell>
                         </TableRow>
                         </TableHead>
                             <TableBody>
                             {reminders.map((row) => (
                                 <TableRow
-                                key={row.name}
+                                key={row.reminderId}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
                                 <TableCell component="th" scope="row">
-                                    {row.name}
+                                    {row.time}
                                 </TableCell>
-                                <TableCell>{row.dosage}</TableCell>
-                                <TableCell>{row.frequency}</TableCell>
-                                <TableCell>{row.sdate}</TableCell>
-                                <TableCell>{row.edate}</TableCell>
+                                <TableCell>{row.cartakerphone}</TableCell>
+                                <TableCell>{row.message}</TableCell>
                                 </TableRow>
                             ))}
                             </TableBody>

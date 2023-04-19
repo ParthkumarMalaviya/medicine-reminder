@@ -1,3 +1,6 @@
+// Group Details
+// Name: Niyati Gaikwad StudentID: 8849554
+// Name: Parthkumar Malaviya StudentID: 8869965
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';

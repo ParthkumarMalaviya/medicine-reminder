@@ -1,3 +1,6 @@
+// Group Details
+// Name: Niyati Gaikwad StudentID: 8849554
+// Name: Parthkumar Malaviya StudentID: 8869965
 import * as React from 'react';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
@@ -6,6 +9,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Button } from '@mui/material';
+import dayjs from 'dayjs';
 
 export default function UserForm (props) {
     const [fname, setFirstName] = React.useState();
@@ -18,13 +22,14 @@ export default function UserForm (props) {
     // const [id, setId] = React.useState('');
 
     React.useEffect(() => {
-        const curUser = localStorage.getItem('user');
+        const curUser = JSON.parse(localStorage.getItem('user'));
+        console.log(curUser);
         if(curUser != null){
             setFirstName(curUser.fname);
             setLastName(curUser.lname);
             setEmail(curUser.email);
             setPhone(curUser.phone);
-            setBirthDate(curUser.dob);
+            setBirthDate(dayjs(curUser.dob));
         }
     }, [])
 
